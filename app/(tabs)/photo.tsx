@@ -1,10 +1,10 @@
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
-import { recognize } from "@/service/main";
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect, useState } from "react";
-import { StyleSheet, Image, Platform } from 'react-native';
+import { StyleSheet, Image } from 'react-native';
 import { createWorker } from "tesseract.js";
+import query from "../../service/openAI";
+import { ChatCompletionMessage } from "openai/resources";
 
 
 const photoPage = () => {
@@ -12,6 +12,8 @@ const photoPage = () => {
     const img_url = '../../dataset/3.png';
 
     const [text, setText] = useState<string>('');
+
+    const [result, setResult] = useState<ChatCompletionMessage>();
 
     useEffect(() => {
         (async() => {
@@ -30,6 +32,19 @@ const photoPage = () => {
         })();
     }, []);
 
+    useEffect(() => {
+        (async () => {
+            if(text){
+                console.log(text);
+                const res = await query(text);
+                setResult(res);
+    
+                console.log(res);
+            }
+        })();
+        
+    }, [text]);
+
 
     return <ParallaxScrollView
         headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
@@ -37,7 +52,7 @@ const photoPage = () => {
                 source={require(img_url)}
             />}>
             <ThemedText>
-                {text}
+                <pre>{result?.content}</pre>
             </ThemedText>
     </ParallaxScrollView>  
 };

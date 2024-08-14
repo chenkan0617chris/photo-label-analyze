@@ -1,11 +1,26 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "esModuleInterop": true,
+    "lib": ["es2020"],
+    "module": "es2022",
+    "preserveConstEnums": true,
+    "moduleResolution": "node",
     "strict": true,
+    "sourceMap": true,
+    "target": "es2022",
+    "types": ["node"],
+    "outDir": "dist",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/app/*": ["./app/*"],
+      "@/assets/*": ["./assets/*"],
+      "@/components/*": ["./components/*"],
+      "@/styles/*": ["./styles/*"],
+      "@/utils/*": ["./utils/*"],
+      "@/constants/*": ["./constants/*"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/dataset/*": ["./dataset/*"],
+
     }
   },
   "include": [
@@ -13,5 +28,6 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+  ],
+
 }
