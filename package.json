@@ -19,9 +19,11 @@
     "@react-navigation/native": "^6.0.2",
     "dotenv": "^16.4.5",
     "expo": "~51.0.22",
+    "expo-camera": "~15.0.14",
     "expo-constants": "~16.0.2",
     "expo-font": "~12.0.9",
     "expo-linking": "~6.3.1",
+    "expo-media-library": "^16.0.4",
     "expo-router": "~3.5.18",
     "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",
@@ -38,7 +40,8 @@
     "react-native-web": "~0.19.10",
     "sharp": "^0.33.4",
     "tesseract.js": "^5.1.0",
-    "expo-camera": "~15.0.14"
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "expo-file-system": "~17.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -1,10 +1,11 @@
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { useEffect, useState } from "react";
-import { StyleSheet, Image } from 'react-native';
+import { StyleSheet, Image, View } from 'react-native';
 import { createWorker } from "tesseract.js";
 import query from "../../service/openAI";
 import { ChatCompletionMessage } from "openai/resources";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const photoPage = () => {
@@ -13,23 +14,35 @@ const photoPage = () => {
 
     const [text, setText] = useState<string>('');
 
+    const [pic, setPic] = useState<string>('');
     const [result, setResult] = useState<ChatCompletionMessage>();
+    
 
     useEffect(() => {
         (async() => {
-            const recognize = async (image: string, lang: string = 'eng') =>{
+            try {
+                let picItem = await AsyncStorage.getItem('pic');
+                if(!picItem) return;
+                setPic(picItem);
 
-                const worker = await createWorker(lang);
-            
-                const data = await worker.recognize(image);
-                
-                await worker.terminate();
-    
-                return data?.data.text;
-            };
-            const text = await recognize(img_url);
-            setText(text);
+                const recognize = async (image: string, lang: string = 'eng') =>{
+                    const worker = await createWorker(lang);
+                    const data = await worker.recognize(image);
+                    await worker.terminate();
+                    return data?.data.text;
+                };
+                const text = await recognize(img_url);
+                setText(text);
+            } catch(e){
+                console.log(e);
+            }
         })();
+
+        return () => {
+            setText('');
+            setPic('');
+            setResult(undefined);
+        }
     }, []);
 
     useEffect(() => {
@@ -45,16 +58,27 @@ const photoPage = () => {
         
     }, [text]);
 
+    if(!result){
+        return (
+            <View style={styles.analyzing}>
+                <ThemedText>Analyzing...</ThemedText>
+            </View>
+        )
+    }
 
-    return <ParallaxScrollView
-        headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-        headerImage={<Image
-                source={require(img_url)}
-            />}>
-            <ThemedText>
-                {result?.content}
-            </ThemedText>
-    </ParallaxScrollView>  
+    if(pic){
+        return (
+            <ParallaxScrollView
+                headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
+                headerImage={
+                // <Image source={{ uri: img_url}}/>}>
+                <Image source={require(img_url)}/>}>
+                    <ThemedText>
+                        {result.content}
+                    </ThemedText>
+            </ParallaxScrollView>  
+        );
+    }
 };
 
 export default photoPage;
@@ -70,4 +94,8 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       gap: 8,
     },
+    analyzing: {
+        margin: 'auto',
+        justifyContent: 'center'
+    }
   });

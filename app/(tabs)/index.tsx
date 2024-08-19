@@ -5,16 +5,34 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
-import { useState } from 'react';
+import { Camera, CameraType, CameraView, useCameraPermissions } from 'expo-camera';
+import { useEffect, useRef, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
 
 export default function HomeScreen() {
 
   const [facing, setFacing] = useState<CameraType>('back');
 
   const [open, setOpen] = useState<boolean>(false);
-
+  const [pic, setPic] = useState<any>();
   const [permission, requestPermission] = useCameraPermissions();
+  const cameraRef = useRef<any>();
+  const navigation = useNavigation<any>();
+
+  useEffect(() =>{
+    return () => {
+      init();
+    }
+  }, []);
+
+  const init = () => {
+    setOpen(false);
+    setPic(undefined);
+    setFacing('back');
+  };
 
   
   function toggleCameraFacing() {
@@ -24,6 +42,39 @@ export default function HomeScreen() {
   function toggleCameraOpen(){
     setOpen(current => !current);
   }
+
+  const takePic = async () => {
+    let options = {
+      quality: 1,
+      base64: true,
+      exif: false
+    };
+
+    let newPic = await cameraRef.current.takePictureAsync(options);
+    setPic(newPic);
+
+    try {
+      await AsyncStorage.setItem('pic', newPic.base64);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const analyze = async () => {
+    // navigation.push('photo', { user: 'bacon' });
+
+    // await FileSystem.copyAsync({
+    //   from: pic,
+    //   to: `../../assets/pics/1.jpg`
+    // })
+    
+    navigation.navigate('photo');
+    // init();
+  };
+
+  const retake = () => {
+    setPic(undefined);
+  };
 
   if(open){
     if (!permission) {
@@ -40,9 +91,28 @@ export default function HomeScreen() {
         </View>
       );
     }
+
+    if(pic){
+      // if took pic
+      return <SafeAreaView style={styles.container}>
+        <Image style={styles.preview} source={{ uri: pic.base64 }}></Image>
+        <View style={styles.buttons}>
+          <View style={styles.button}>
+            <Button title="Analyze" onPress={analyze}></Button>
+          </View>
+          <View style={styles.button}>
+            <Button title="Retake" onPress={retake}></Button>
+          </View>
+        </View>
+      </SafeAreaView>
+    }
+
     return (
       <View style={styles.container}>
-        <CameraView style={styles.camera} facing={facing}>
+        <CameraView style={styles.camera} ref={cameraRef} facing={facing}>
+          <View>
+            <Button title="take pic" onPress={takePic}></Button>
+          </View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
               <Text style={styles.text}>Flip</Text>
@@ -74,6 +144,16 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  btmButton: {
+    margin: 16,
+    
+  },
+  buttons: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row'
+  },
   cameraBorder: {
     width: 350,
     height: 350,
@@ -84,6 +164,10 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderRadius: 8
   },
+  preview: {
+    alignSelf: 'stretch',
+    flex: 1
+  },
   cameraBox: {
     flex: 1,
     justifyContent: 'center',
@@ -93,7 +177,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
-    textAlign: 'center'
+    textAlign: 'center',
+    marginTop: 32
   },
   titleName: {
     fontSize: 60,
@@ -118,6 +203,8 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
+    position: 'static'
+
   },
   buttonContainer: {
     flex: 1,
