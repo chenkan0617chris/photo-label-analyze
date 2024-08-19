@@ -52,7 +52,7 @@ const photoPage = () => {
                 source={require(img_url)}
             />}>
             <ThemedText>
-                <pre>{result?.content}</pre>
+                {result?.content}
             </ThemedText>
     </ParallaxScrollView>  
 };
