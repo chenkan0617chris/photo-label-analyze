@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, View, TouchableOpacity, Text, Button } from 'react-native';
+import { Image, StyleSheet, Platform, View, TouchableOpacity, Text, Button, Dimensions } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -8,9 +8,12 @@ import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Camera, CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import { useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { Link, NavigationContainer, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import { CHOICES } from '@/constants/constants';
 
 export default function HomeScreen() {
 
@@ -18,9 +21,14 @@ export default function HomeScreen() {
 
   const [open, setOpen] = useState<boolean>(false);
   const [pic, setPic] = useState<any>();
+  const [choices, setChoices] = useState<string>(CHOICES[0]);
+  const [chooseFlag, setChooseFlag] = useState<boolean>(false);
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<any>();
   const navigation = useNavigation<any>();
+
+  const windowWidth = Dimensions.get('window').width;
 
   useEffect(() =>{
     return () => {
@@ -60,8 +68,48 @@ export default function HomeScreen() {
     }
   };
 
+  const renderOptions = () => {
+    console.log(choices);
+    if(chooseFlag){
+      return (
+          <View style={styles.cameraBox}>
+            <ThemedText>
+              Your Choices: {choices}
+            </ThemedText>
+            <TouchableOpacity onPress={() => setChooseFlag(false)} style={{ marginBottom: 10 }}>
+              <Text style={{ color: 'blue', textDecorationLine: 'underline' }}>Go back to setting</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setOpen(true)}>
+              <View style={styles.cameraBorder}>
+                <TabBarIcon style={{fontSize: 50}} name='camera-sharp' />
+              </View>
+            </TouchableOpacity>
+          </View>
+      );
+    }
+    return <View style={{ display: 'flex', alignItems: 'center' }}>
+        <ThemedText style={{ textAlign: 'center', marginBottom: 20 }}>Choose what you want to analyze:</ThemedText>
+        <SegmentedControl
+          style={{ height: 50, width: windowWidth * 0.9, marginBottom: 20 }}
+          values={CHOICES}
+          selectedIndex={selectedIndex}
+          onChange={(event) => {
+            setChoices(event.nativeEvent.value);
+            setSelectedIndex(event.nativeEvent.selectedSegmentIndex);
+          }}
+        />
+        <View style={{ width: windowWidth * 0.3, alignItems: 'center'  }}>
+          <Button onPress={() => setChooseFlag(true)} title='Start'></Button>
+        </View>
+    </View>
+  };
+
   const analyze = async () => {
     // navigation.push('photo', { user: 'bacon' });
+
+    // MediaLibrary.saveToLibraryAsync(pic.uri).then(() => {
+    //   setPic(undefined);
+    // });
 
     // await FileSystem.copyAsync({
     //   from: pic,
@@ -110,16 +158,19 @@ export default function HomeScreen() {
     return (
       <View style={styles.container}>
         <CameraView style={styles.camera} ref={cameraRef} facing={facing}>
-          <View>
-            <Button title="take pic" onPress={takePic}></Button>
-          </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-              <Text style={styles.text}>Flip</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={toggleCameraOpen}>
-              <Text style={styles.text}>Cancel</Text>
-            </TouchableOpacity>
+          <View style={{ flex: 1 }}></View>
+          <View style={{ alignItems: 'center' }}>
+            <View style={styles.takePic}>
+              <TabBarIcon onPress={takePic} style={{fontSize: 50}} name='camera-sharp' />
+            </View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+                <Text style={styles.text}>Flip</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={toggleCameraOpen}>
+                <Text style={styles.text}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </CameraView>
       </View>
@@ -132,13 +183,7 @@ export default function HomeScreen() {
             <ThemedText style={styles.titleName} type='title'>GIAO</ThemedText>
             <ThemedText style={styles.subtitle} type='subtitle'>Your Graphical Identification and Analysis Online</ThemedText>
           </ThemedView>
-          <View style={styles.cameraBox}>
-            <TouchableOpacity onPress={() => setOpen(true)}>
-              <View style={styles.cameraBorder}>
-                <TabBarIcon style={{fontSize: 50}} name='camera-sharp' />
-              </View>
-            </TouchableOpacity>
-          </View>
+          {renderOptions()}
       </ThemedView>
       );
 }
@@ -178,7 +223,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
-    marginTop: 32
+    marginTop: 32,
+    position: 'absolute',
+    top: 0
   },
   titleName: {
     fontSize: 60,
@@ -203,8 +250,8 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
-    position: 'static'
-
+    position: 'static',
+    alignItems: 'center'
   },
   buttonContainer: {
     flex: 1,
@@ -223,4 +270,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
   },
+  takePic: {
+    borderWidth: 3,
+    borderStyle: 'solid',
+    borderRadius: 60,
+    display: 'flex',
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
 });

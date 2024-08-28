@@ -10,8 +10,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const photoPage = () => {
 
-    const img_url = '../../dataset/3.png';
-
     const [text, setText] = useState<string>('');
 
     const [pic, setPic] = useState<string>('');
@@ -31,7 +29,7 @@ const photoPage = () => {
                     await worker.terminate();
                     return data?.data.text;
                 };
-                const text = await recognize(img_url);
+                const text = await recognize(picItem);
                 setText(text);
             } catch(e){
                 console.log(e);
@@ -67,12 +65,12 @@ const photoPage = () => {
     }
 
     if(pic){
+        console.log(pic);
         return (
             <ParallaxScrollView
                 headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
                 headerImage={
-                // <Image source={{ uri: img_url}}/>}>
-                <Image source={require(img_url)}/>}>
+                <Image source={{ uri: pic}}/>}>
                     <ThemedText>
                         {result.content}
                     </ThemedText>
