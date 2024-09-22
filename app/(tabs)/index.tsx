@@ -120,8 +120,9 @@ export default function HomeScreen() {
     // init();
   };
 
-  const retake = () => {
+  const retake = async () => {
     setPic(undefined);
+    await AsyncStorage.clear();
   };
 
   if(open){

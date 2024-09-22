@@ -31,6 +31,7 @@ const photoPage = () => {
                 };
                 const text = await recognize(picItem);
                 setText(text);
+                console.log(text);
             } catch(e){
                 console.log(e);
             }
@@ -70,10 +71,10 @@ const photoPage = () => {
             <ParallaxScrollView
                 headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
                 headerImage={
-                <Image source={{ uri: pic}}/>}>
-                    <ThemedText>
-                        {result.content}
-                    </ThemedText>
+                <Image style={styles.scanImage} source={{ uri: pic}}/>}>
+                <ThemedText>
+                    {result.content}
+                </ThemedText>
             </ParallaxScrollView>  
         );
     }
@@ -95,5 +96,9 @@ const styles = StyleSheet.create({
     analyzing: {
         margin: 'auto',
         justifyContent: 'center'
+    },
+    scanImage: {
+        position: 'relative',
     }
   });
+
