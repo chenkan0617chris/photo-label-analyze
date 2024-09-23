@@ -131,14 +131,13 @@ export default function HomeScreen() {
 
   function detectBlurPic(target: any){
 
-    let img = cv.imread(target);
-    if(img){
-      console.log(img);
-      showAlert();
-      // return;
-    }
+    // let img = cv.imread(target);
+    // if(!img){
+    //   // showAlert();
+    //   // return;
+    // }
 
-    processPic(img);
+    // processPic(target);
   };
 
   const analyze = async () => {
