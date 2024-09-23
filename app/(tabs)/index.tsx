@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform, View, TouchableOpacity, Text, Button, Dimensions } from 'react-native';
+import { Image, StyleSheet, Platform, View, TouchableOpacity, Text, Button, Dimensions, Alert } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -14,6 +14,8 @@ import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { CHOICES } from '@/constants/constants';
+import cv from "@techstark/opencv-js";
+import { processPic } from '../../service/opencv';
 
 export default function HomeScreen() {
 
@@ -26,6 +28,8 @@ export default function HomeScreen() {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<any>();
+  const picRef = useRef<any>();
+  
   const navigation = useNavigation<any>();
 
   const windowWidth = Dimensions.get('window').width;
@@ -96,6 +100,7 @@ export default function HomeScreen() {
           onChange={(event) => {
             setChoices(event.nativeEvent.value);
             setSelectedIndex(event.nativeEvent.selectedSegmentIndex);
+            AsyncStorage.setItem('choice', event.nativeEvent.value);
           }}
         />
         <View style={{ width: windowWidth * 0.3, alignItems: 'center'  }}>
@@ -104,20 +109,41 @@ export default function HomeScreen() {
     </View>
   };
 
+  const showAlert = () =>
+    Alert.alert(
+      'Alert Title',
+      'My Alert Msg',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => Alert.alert('Cancel Pressed'),
+          style: 'cancel',
+        },
+      ],
+      {
+        cancelable: true,
+        onDismiss: () =>
+          Alert.alert(
+            'This alert was dismissed by tapping outside of the alert dialog.',
+          ),
+      },
+    );
+
+  function detectBlurPic(target: any){
+
+    let img = cv.imread(target);
+    if(img){
+      console.log(img);
+      showAlert();
+      // return;
+    }
+
+    processPic(img);
+  };
+
   const analyze = async () => {
-    // navigation.push('photo', { user: 'bacon' });
-
-    // MediaLibrary.saveToLibraryAsync(pic.uri).then(() => {
-    //   setPic(undefined);
-    // });
-
-    // await FileSystem.copyAsync({
-    //   from: pic,
-    //   to: `../../assets/pics/1.jpg`
-    // })
     
     navigation.navigate('photo');
-    // init();
   };
 
   const retake = async () => {
@@ -144,7 +170,24 @@ export default function HomeScreen() {
     if(pic){
       // if took pic
       return <SafeAreaView style={styles.container}>
-        <Image style={styles.preview} source={{ uri: pic.base64 }}></Image>
+        <img
+          style={styles.preview} 
+          src={pic.base64}
+          ref={picRef}
+          onLoad={(e) => {
+            detectBlurPic(e.target);
+          }}
+        />
+        {/* <Image 
+          id='detect-img'
+          style={styles.preview} 
+          source={{ uri: pic.base64 }}
+          ref={picRef}
+          onLoad={(e) => {
+            
+            detectBlurPic();
+          }}
+        /> */}
         <View style={styles.buttons}>
           <View style={styles.button}>
             <Button title="Analyze" onPress={analyze}></Button>

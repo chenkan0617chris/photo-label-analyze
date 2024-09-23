@@ -16,11 +16,15 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-native-segmented-control/segmented-control": "2.5.2",
     "@react-navigation/native": "^6.0.2",
+    "@techstark/opencv-js": "^4.10.0-release.1",
     "dotenv": "^16.4.5",
     "expo": "~51.0.22",
     "expo-camera": "~15.0.14",
     "expo-constants": "~16.0.2",
+    "expo-file-system": "~17.0.1",
     "expo-font": "~12.0.9",
     "expo-linking": "~6.3.1",
     "expo-media-library": "^16.0.4",
@@ -40,9 +44,7 @@
     "react-native-web": "~0.19.10",
     "sharp": "^0.33.4",
     "tesseract.js": "^5.1.0",
-    "@react-native-async-storage/async-storage": "1.23.1",
-    "expo-file-system": "~17.0.1",
-    "@react-native-segmented-control/segmented-control": "2.5.2"
+    "expo-notifications": "~0.28.17"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

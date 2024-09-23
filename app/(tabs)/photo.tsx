@@ -1,11 +1,12 @@
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { useEffect, useState } from "react";
-import { StyleSheet, Image, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { createWorker } from "tesseract.js";
 import query from "../../service/openAI";
 import { ChatCompletionMessage } from "openai/resources";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CHOICES } from "@/constants/constants";
 
 
 const photoPage = () => {
@@ -48,7 +49,8 @@ const photoPage = () => {
         (async () => {
             if(text){
                 console.log(text);
-                const res = await query(text);
+                let choice = await AsyncStorage.getItem('choice') || CHOICES[0];
+                const res = await query(text, choice);
                 setResult(res);
     
                 console.log(res);
@@ -68,14 +70,23 @@ const photoPage = () => {
     if(pic){
         console.log(pic);
         return (
-            <ParallaxScrollView
-                headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-                headerImage={
-                <Image style={styles.scanImage} source={{ uri: pic}}/>}>
+            <View>
+                <Image 
+                    style={styles.scanImage} 
+                    source={{ uri: pic }}
+                />
                 <ThemedText>
                     {result.content}
                 </ThemedText>
-            </ParallaxScrollView>  
+            </View>
+            // <ParallaxScrollView
+            //     headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
+            //     headerImage={
+            //     <Image style={styles.scanImage} source={{ uri: pic}}/>}>
+            //     <ThemedText>
+            //         {result.content}
+            //     </ThemedText>
+            // </ParallaxScrollView>  
         );
     }
 };
@@ -98,7 +109,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     scanImage: {
-        position: 'relative',
+        height: '100%',
+        minHeight: 200
     }
   });
 
