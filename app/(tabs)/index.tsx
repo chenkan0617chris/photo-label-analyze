@@ -1,5 +1,5 @@
-import { Image, StyleSheet, Platform, View, TouchableOpacity, Text, Button, Dimensions, Alert } from 'react-native';
-
+import { StyleSheet, Image, Platform, View, TouchableOpacity, Text, Button, Dimensions, Alert } from 'react-native';
+// import { Image } from 'expo-image';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -169,24 +169,29 @@ export default function HomeScreen() {
     if(pic){
       // if took pic
       return <SafeAreaView style={styles.container}>
-        <img
+        {/* <img
           style={styles.preview} 
           src={pic.base64}
           ref={picRef}
           onLoad={(e) => {
             detectBlurPic(e.target);
           }}
-        />
-        {/* <Image 
-          id='detect-img'
-          style={styles.preview} 
-          source={{ uri: pic.base64 }}
-          ref={picRef}
-          onLoad={(e) => {
-            
-            detectBlurPic();
-          }}
         /> */}
+        {/* <Image
+          style={styles.preview}
+          source={pic.base64}
+          // placeholder={{ blurhash }}
+          // contentFit="cover"
+          transition={1000}
+          // ref={picRef}
+        /> */}
+        <Image
+          style={styles.preview}
+          source={{ uri: pic.base64 }}
+          // placeholder={{ blurhash }}
+          // contentFit="cover"
+          ref={picRef}
+        />
         <View style={styles.buttons}>
           <View style={styles.button}>
             <Button title="Analyze" onPress={analyze}></Button>
@@ -314,13 +319,16 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   takePic: {
+    flex: 1,
+    flexDirection: 'row',
     borderWidth: 3,
     borderStyle: 'solid',
     borderRadius: 60,
     display: 'flex',
     width: 60,
     height: 60,
-    justifyContent: 'center',
-    alignItems: 'center'
+    justifyContent: 'flex-end',
+    // alignSelf: 'flex-end',
+    alignItems: 'flex-end'
   }
 });
