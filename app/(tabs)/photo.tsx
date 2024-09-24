@@ -8,6 +8,7 @@ import { ChatCompletionMessage } from "openai/resources";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CHOICES } from "@/constants/constants";
 import * as Tesseract from 'tesseract.js';
+import TextRecognition from '@react-native-ml-kit/text-recognition';
 
 const photoPage = () => {
 
@@ -24,28 +25,27 @@ const photoPage = () => {
                 if(!picItem) return;
                 setPic(picItem);
 
-                const recognize = async (image: string, lang: string = 'eng'): Promise<string> => {
-                    console.log(image);
-                    return Tesseract.recognize(
-                        image,
-                        'eng',
-                        {
-                            logger: (m) => console.log(m),
-                        }
-                    ).then(({ data: {text} }) => {
-                        return text;
-                    }).catch((error: any) => {
-                        console.log(error);
-                        return error;
-                    });
+                // const recognize = async (image: string, lang: string = 'eng'): Promise<string> => {
+                //     console.log(image);
+                //     return TextRecognition.recognize(
+                //         image
+                //     ).then(({ data: {text} }) => {
+                //         return text;
+                //     }).catch((error: any) => {
+                //         console.log(error);
+                //         return error;
+                //     });
 
                     // const worker = await createWorker(lang);
                     // console.log(worker);
                     // const data = await worker.recognize(image);
                     // await worker.terminate();
                     // return data?.data.text;
-                };
-                const text = await recognize(picItem);
+                // };
+                // const text = await recognize(picItem);
+
+                const result = await TextRecognition.recognize(picItem);
+                let text = result.text;
                 setText(text);
                 console.log(text);
             } catch(e){
